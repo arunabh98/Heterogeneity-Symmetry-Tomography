@@ -1,6 +1,5 @@
 % Increase the number of parpool workers.
-parpool('local', 14)
-% warning('off', 'MATLAB:rankDeficientMatrix');
+% parpool('local', 14)
 
 % Include the moment based estimation scripts and noise scripts.
 addpath(genpath('../data'));
@@ -19,7 +18,7 @@ P3 = read_process_image('refs_010.png', image_size);
 
 % Constants.
 non_uniform_distribution = 0;
-sigmaNoiseFraction = 0.05;
+sigmaNoiseFraction = 0.40;
 if non_uniform_distribution == 0
     filename = ...
         strcat('../results/heterogeneity/', num2str(sigmaNoiseFraction*100), '_percent_noise/');
@@ -34,9 +33,9 @@ max_shift_amplitude = 0;
 symmetry_prior = 1;
 noisy_orientations = 1;
 symmetry_method = 4;
-include_clustering = 0;
-num_clusters = 180;
-num_theta = 270;
+include_clustering = 1;
+num_clusters = 300;
+num_theta = 30000;
 
 % Create the folder to hold the results of the experiment.
 mkdir(strcat(filename, num2str(num_theta), '/all_variables/'));
