@@ -1,8 +1,21 @@
 function [clustered_projections, clustered_angles, cluster_class, original_cluster_class] = ...
     cluster_projections(projections, num_clusters, original_theta, original_class)
+
     % Cluster the projections.
-    [idx, C, ~, ~] = kmeans(projections', num_clusters,...
-        'distance', 'cityblock');
+    % Agglomerative hierarchical cluster tree
+    Z = linkage(projections', 'weighted', 'seuclidean');
+    idx = cluster(Z,'Maxclust', num_clusters);
+
+    C = zeros(size(projections, 1), num_clusters);
+    for i=1:num_clusters
+        projections_in_cluster = projections(:, idx == i);
+        C(:, i) = mean(projections_in_cluster, 2);
+    end
+    C = C';
+
+    % % K-means
+    % [idx, C, ~, ~] = kmeans(projections', num_clusters,...
+    %     'distance', 'cityblock');
 
     % Make the Distance Matrix
     D = zeros(size(projections,2), num_clusters);
@@ -29,7 +42,7 @@ function [clustered_projections, clustered_angles, cluster_class, original_clust
         % If some clusters are obtained
         if(~(size(clusterProjs,2) == 0))
             clusteredProj(:,count) = mean(clusterProjs,2);
-            count = count+1;
+            count = count + 1;
         end
     end
 
@@ -40,13 +53,24 @@ function [clustered_projections, clustered_angles, cluster_class, original_clust
     new_num_clusters = size(clustered_projections, 2);
     clustered_angles = zeros(1, new_num_clusters);
     original_cluster_class = zeros(1, new_num_clusters);
+    zeroth_moment = zeros(1, new_num_clusters);
     for i=1:new_num_clusters
-        clustered_angles(i) = mean(filteredAngles(filteredIdx == ang));
-        original_cluster_class(i) = mode(filteredClass(filteredIdx == ang));
+        clustered_angles(i) = mean(filteredAngles(filteredIdx == i));
+        original_cluster_class(i) = mode(filteredClass(filteredIdx == i));
+        zeroth_moment(i) = sum(clustered_projections(:, i));
     end
 
-    % Randomly initialize the clusters.
-    cluster_class = randi(3, 1, new_num_clusters);
+    % Initialize the cluster clases.
+    [zeroth_moment_sorted, ~] = sort(zeroth_moment);
+    first_threshold = zeroth_moment_sorted(round(new_num_clusters/3));
+    second_threshold = zeroth_moment_sorted(round(2*new_num_clusters/3));
+    cluster_class = zeros(1, new_num_clusters);
+    cluster_class(zeroth_moment < first_threshold) =...
+        mode(original_cluster_class(zeroth_moment < first_threshold));
+    cluster_class(zeroth_moment < second_threshold & zeroth_moment >= first_threshold) =...
+        mode(original_cluster_class(zeroth_moment < second_threshold & zeroth_moment >= first_threshold));
+    cluster_class(zeroth_moment >= second_threshold) =...
+        mode(original_cluster_class(zeroth_moment >= second_threshold));
 
     % Analyze cluster purity.
     original_cluster_purity = zeros(1, num_clusters);
@@ -69,6 +93,8 @@ function [clustered_projections, clustered_angles, cluster_class, original_clust
         filtered_cluster_purity(ang) =...
             (sum(filteredClassProjs == frequent_filtered_class)/size(filteredClassProjs, 2))*100;
     end
+    
+    disp(mean(filtered_cluster_purity, 2));
 
     fprintf(1,'--------------------------------------------------------\n');
     fprintf(1,'Projections Clustered\n');

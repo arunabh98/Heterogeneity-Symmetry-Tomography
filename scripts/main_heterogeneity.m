@@ -34,7 +34,7 @@ symmetry_prior = 1;
 noisy_orientations = 1;
 symmetry_method = 4;
 include_clustering = 1;
-num_clusters = 300;
+num_clusters = 180;
 num_theta = 30000;
 
 % Create the folder to hold the results of the experiment.
@@ -167,192 +167,192 @@ noisy_theta = noisy_theta';
 
 theta_to_write(3, :) = refined_classes;
 
-% % Error after noise removal.
-% % Only makes sense if clustering is not there.
-% if include_clustering ~= 1
-%     disp('**** L2-norm error between the original projections and denoised and shift corrected projections ****');
-%     disp(norm(refined_projections - original_projections, 'fro'));
-%     disp('');
-% end
-% disp('**** L1-norm error between the moment estimated shifts and the actual shifts ****');
-% disp(norm(projection_shifts - original_shifts, 1));
-% disp('');
+% Error after noise removal.
+% Only makes sense if clustering is not there.
+if include_clustering ~= 1
+    disp('**** L2-norm error between the original projections and denoised and shift corrected projections ****');
+    disp(norm(refined_projections - original_projections, 'fro'));
+    disp('');
+end
+disp('**** L1-norm error between the moment estimated shifts and the actual shifts ****');
+disp(norm(projection_shifts - original_shifts, 1));
+disp('');
 
-% % Start iteration.
-% projection_shifts = projection_shifts';
-% noisy_theta = noisy_theta';
+% Start iteration.
+projection_shifts = projection_shifts';
+noisy_theta = noisy_theta';
 
-% better_theta = noisy_theta;
-% better_shift = projection_shifts;
+better_theta = noisy_theta;
+better_shift = projection_shifts;
 
-% % Define the gradient descent parameters.
-% resolution_angle = 0.005;
-% resolution_shift = 1;
-% angle_amplitude = 3;
-% shift_amplitude = 0;
-% errors = [];
-% alpha_rate =  0.001;
-% beta_rate = 0.001;
-% error_delta = 10;
+% Define the gradient descent parameters.
+resolution_angle = 0.005;
+resolution_shift = 1;
+angle_amplitude = 3;
+shift_amplitude = 0;
+errors = [];
+alpha_rate =  0.001;
+beta_rate = 0.001;
+error_delta = 10;
 
-% % Calculate the estimate of the image based on moment based solver.
-% reconstructed_image = ...
-%     reconstruct_image(refined_projections, better_theta,...
-%         better_shift, output_size);
+% Calculate the estimate of the image based on moment based solver.
+reconstructed_image = ...
+    reconstruct_image(refined_projections, better_theta,...
+        better_shift, output_size);
 
-% % If symmetric prior is enabled, estimate the axis of symmetry.
-% if symmetry_prior == 1
-%     % delta is the angle by which the image should be rotated
-%     % so that the axis of symmetry is horizontal.
-%     delta = estimate_axis_symmetry_alter(...
-%         reconstructed_image, output_size, 90, 0, symmetry_method);
-% end
+% If symmetric prior is enabled, estimate the axis of symmetry.
+if symmetry_prior == 1
+    % delta is the angle by which the image should be rotated
+    % so that the axis of symmetry is horizontal.
+    delta = estimate_axis_symmetry_alter(...
+        reconstructed_image, output_size, 90, 0, symmetry_method);
+end
 
-% % Record the results given by the moment based estimation.
-% theta_to_write(2, :) = better_theta;
-% theta_to_write(8, :) = -better_shift;
-% formatSpec = 'Estimated image relative error: %4.2f \r\n';
-% fprintf(fileID, formatSpec, calculate_rmse_error(reconstructed_image, P));
-% fclose(fileID);
+% Record the results given by the moment based estimation.
+theta_to_write(2, :) = better_theta;
+theta_to_write(8, :) = -better_shift;
+formatSpec = 'Estimated image relative error: %4.2f \r\n';
+fprintf(fileID, formatSpec, calculate_rmse_error(reconstructed_image, P));
+fclose(fileID);
 
 
-% % Store the estimated image after moment based estimation.
-% imwrite(reconstructed_image, ...
-%     strcat(filename, num2str(num_theta), '/estimated_image.png'));
+% Store the estimated image after moment based estimation.
+imwrite(reconstructed_image, ...
+    strcat(filename, num2str(num_theta), '/estimated_image.png'));
 
-% % Since we also have to run the optimization another time to show the
-% % improvement by using symmetric priors we store the initial values.
-% initial_image = reconstructed_image;
-% initial_iteration_theta = better_theta;
-% initial_iteration_shift = better_shift;
+% Since we also have to run the optimization another time to show the
+% improvement by using symmetric priors we store the initial values.
+initial_image = reconstructed_image;
+initial_iteration_theta = better_theta;
+initial_iteration_shift = better_shift;
 
-% if symmetry_prior == 1
-%     disp('**** Optimization error using symmetric prior ****');
-%     fprintf('\nIteration Error:            \n');
-%     for i=1:500
+if symmetry_prior == 1
+    disp('**** Optimization error using symmetric prior ****');
+    fprintf('\nIteration Error:            \n');
+    for i=1:500
 
-%         % Use the projection prior
-%         gradient_vector = ...
-%             reconstructed_image -...
-%             reconstruct_image(refined_projections, better_theta, better_shift, output_size);
+        % Use the projection prior
+        gradient_vector = ...
+            reconstructed_image -...
+            reconstruct_image(refined_projections, better_theta, better_shift, output_size);
 
-%         % Then use the symmetric prior.
-%         % For calculating the symmetry gradient we first rotate the image
-%         % to make the horizintal axis symmetrical.
-%         cropped_image = extract_circular_patch(reconstructed_image);
+        % Then use the symmetric prior.
+        % For calculating the symmetry gradient we first rotate the image
+        % to make the horizintal axis symmetrical.
+        cropped_image = extract_circular_patch(reconstructed_image);
 
-%         rotated_image = imrotate(cropped_image, delta, 'bicubic', 'crop');
-%         symmetry_gradient_vector = symmetry_gradient_matrix(rotated_image);
-%         symmetry_gradient_vector = imrotate(symmetry_gradient_vector, -delta, 'bicubic', 'crop');
+        rotated_image = imrotate(cropped_image, delta, 'bicubic', 'crop');
+        symmetry_gradient_vector = symmetry_gradient_matrix(rotated_image);
+        symmetry_gradient_vector = imrotate(symmetry_gradient_vector, -delta, 'bicubic', 'crop');
 
-%         % Now finally update the image.
-%         reconstructed_image = ...
-%             reconstructed_image - alpha_rate*gradient_vector - beta_rate*symmetry_gradient_vector; 
+        % Now finally update the image.
+        reconstructed_image = ...
+            reconstructed_image - alpha_rate*gradient_vector - beta_rate*symmetry_gradient_vector; 
 
-%         % The optimization error for this iteration.
-%         function_error = calculate_optimization_error_symmetry_single_axis(refined_projections,...
-%             reconstructed_image, better_theta, better_shift, delta);
+        % The optimization error for this iteration.
+        function_error = calculate_optimization_error_symmetry_single_axis(refined_projections,...
+            reconstructed_image, better_theta, better_shift, delta);
 
-%         % Display the error for ths iteration.
-%         fprintf('%6g \n', function_error); 
-%         errors = [errors function_error];
+        % Display the error for ths iteration.
+        fprintf('%6g \n', function_error); 
+        errors = [errors function_error];
 
-%         % Do a brute force over all orientations and shifts.
-%         % Store the old estimated before calculating the new ones.
-%         old_theta = better_theta;
-%         old_shift = better_shift;
-%         [better_theta, better_shift] = best_orientation_estimate(...
-%             refined_projections, reconstructed_image, better_theta, better_shift,...
-%             angle_amplitude, shift_amplitude, resolution_angle,...
-%             resolution_shift);
+        % Do a brute force over all orientations and shifts.
+        % Store the old estimated before calculating the new ones.
+        old_theta = better_theta;
+        old_shift = better_shift;
+        [better_theta, better_shift] = best_orientation_estimate(...
+            refined_projections, reconstructed_image, better_theta, better_shift,...
+            angle_amplitude, shift_amplitude, resolution_angle,...
+            resolution_shift);
 
-%         % Now update the symmetry axis.
-%         delta = estimate_axis_symmetry_alter(...
-%             reconstructed_image, output_size, error_delta, delta, symmetry_method);
+        % Now update the symmetry axis.
+        delta = estimate_axis_symmetry_alter(...
+            reconstructed_image, output_size, error_delta, delta, symmetry_method);
 
-%         error_delta = max(1, error_delta - 0.5);
-%     end
-%     fprintf('\n');
-%     disp('');
+        error_delta = max(1, error_delta - 0.5);
+    end
+    fprintf('\n');
+    disp('');
     
-%     imwrite(reconstructed_image, ...
-%         strcat(filename, num2str(num_theta), '/reconstructed_symmetry.png'));
+    imwrite(reconstructed_image, ...
+        strcat(filename, num2str(num_theta), '/reconstructed_symmetry.png'));
 
-%      % Plot the function error.
-%     figure; plot(errors);
-%     saveas(gcf, ...
-%         strcat(filename, num2str(num_theta), '/error_symmetric.png'));
+     % Plot the function error.
+    figure; plot(errors);
+    saveas(gcf, ...
+        strcat(filename, num2str(num_theta), '/error_symmetric.png'));
 
-%     % Save the image formed due to symmetric priors.
-%     symmetric_reconstructed_image = reconstructed_image;
-% end
+    % Save the image formed due to symmetric priors.
+    symmetric_reconstructed_image = reconstructed_image;
+end
 
-% % Now reinitialize the parameters for the second iteration without
-% % using symmetry.
-% reconstructed_image = initial_image;
-% better_theta = initial_iteration_theta;
-% better_shift = initial_iteration_shift;
-% errors = [];
-% alpha_rate = 0.001;
+% Now reinitialize the parameters for the second iteration without
+% using symmetry.
+reconstructed_image = initial_image;
+better_theta = initial_iteration_theta;
+better_shift = initial_iteration_shift;
+errors = [];
+alpha_rate = 0.001;
 
-% disp('**** Optimization error without using symmetric prior ****');
-% fprintf('\nIteration Error:            \n');
-% for i=1:500
+disp('**** Optimization error without using symmetric prior ****');
+fprintf('\nIteration Error:            \n');
+for i=1:500
 
-%     % Use the projection prior
-%     gradient_vector = ...
-%         reconstructed_image -...
-%         reconstruct_image(refined_projections, better_theta, better_shift, output_size);
+    % Use the projection prior
+    gradient_vector = ...
+        reconstructed_image -...
+        reconstruct_image(refined_projections, better_theta, better_shift, output_size);
 
-%     % Now finally update the image.
-%     reconstructed_image = ...
-%         reconstructed_image - alpha_rate*gradient_vector; 
+    % Now finally update the image.
+    reconstructed_image = ...
+        reconstructed_image - alpha_rate*gradient_vector; 
 
-%     % The optimization error for this iteration.
-%     function_error = calculate_optimization_error(refined_projections,...
-%         reconstructed_image, better_theta, better_shift);
+    % The optimization error for this iteration.
+    function_error = calculate_optimization_error(refined_projections,...
+        reconstructed_image, better_theta, better_shift);
 
-%     % Display the error for ths iteration.
-%     fprintf('%6g \n', function_error); 
-%     errors = [errors function_error];
+    % Display the error for ths iteration.
+    fprintf('%6g \n', function_error); 
+    errors = [errors function_error];
 
-%     % Do a brute force over all orientations and shifts.
-%     [better_theta, better_shift] = best_orientation_estimate(...
-%         refined_projections, reconstructed_image, better_theta, better_shift,...
-%         angle_amplitude, shift_amplitude, resolution_angle,...
-%         resolution_shift);
+    % Do a brute force over all orientations and shifts.
+    [better_theta, better_shift] = best_orientation_estimate(...
+        refined_projections, reconstructed_image, better_theta, better_shift,...
+        angle_amplitude, shift_amplitude, resolution_angle,...
+        resolution_shift);
 
-%     % % Decrease the step size as the iteration progresses.
-%     % if mod(i, 5) == 0
-%     %     alpha_rate = alpha_rate/3;
-%     % end
-% end
-% fprintf('\n');
-% disp('');
+    % % Decrease the step size as the iteration progresses.
+    % if mod(i, 5) == 0
+    %     alpha_rate = alpha_rate/3;
+    % end
+end
+fprintf('\n');
+disp('');
 
-% imwrite(reconstructed_image, ...
-%     strcat(filename, num2str(num_theta), '/reconstructed_sans_symmetry.png'));
+imwrite(reconstructed_image, ...
+    strcat(filename, num2str(num_theta), '/reconstructed_sans_symmetry.png'));
 
-% % Reopen the file.
-% fileID = fopen(strcat(filename,...
-%     num2str(num_theta), '/result.txt'),'at');
+% Reopen the file.
+fileID = fopen(strcat(filename,...
+    num2str(num_theta), '/result.txt'),'at');
 
-% % Calculate the mse errors in both cases.
-% if symmetry_prior == 1
-%     formatSpec = 'Final symmetric image rmse error: %4.2f \r\n';
-%     fprintf(fileID, formatSpec, calculate_rmse_error(symmetric_reconstructed_image, P));
-% end
-% formatSpec = 'Final non-symmetric image rmse error: %4.2f \r\n';
-% fprintf(fileID, formatSpec, calculate_rmse_error(reconstructed_image, P));
+% Calculate the mse errors in both cases.
+if symmetry_prior == 1
+    formatSpec = 'Final symmetric image rmse error: %4.2f \r\n';
+    fprintf(fileID, formatSpec, calculate_rmse_error(symmetric_reconstructed_image, P));
+end
+formatSpec = 'Final non-symmetric image rmse error: %4.2f \r\n';
+fprintf(fileID, formatSpec, calculate_rmse_error(reconstructed_image, P));
 
-% % Record the refined shifts and thetas.
-% theta_to_write(3, :) = better_theta';
-% theta_to_write(9, :) = -better_shift';  
+% Record the refined shifts and thetas.
+theta_to_write(3, :) = better_theta';
+theta_to_write(9, :) = -better_shift';  
 
-% % Plot the function error.
-% figure; plot(errors);
-% saveas(gcf, ...
-%     strcat(filename, num2str(num_theta), '/error_non_symmetry.png'))
+% Plot the function error.
+figure; plot(errors);
+saveas(gcf, ...
+    strcat(filename, num2str(num_theta), '/error_non_symmetry.png'))
 
 % Write the thetas to csv file.
 csvwrite(strcat(filename,...
