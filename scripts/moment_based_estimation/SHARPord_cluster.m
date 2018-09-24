@@ -7,7 +7,7 @@ function [refinedProjections, thetasestimated, shiftsestimated, classestimated] 
     numkeep = size(Pgiven, 2);
     kmax = numkeep - 1;
     if noisyOrientations == 1
-        numstarts = 2;
+        numstarts = 3;
     else
         numstarts = 12;
     end
@@ -61,8 +61,10 @@ function [refinedProjections, thetasestimated, shiftsestimated, classestimated] 
                 ctr = ctr + 1;
 
                 besttheta = thetasestimated(i);
+                finalbesttheta2 = thetasestimated(i);
                 finalbesttheta = thetasestimated(i);
                 bestshift = shiftestimated(i);
+                finalbestshift = shiftestimated(i);
                 bestclass = classestimated(i);
 
                 bestshiftE = Ehlcc;
@@ -85,11 +87,10 @@ function [refinedProjections, thetasestimated, shiftsestimated, classestimated] 
 
                                 thetas_iter = thetasestimated;
                                 thetas_iter(i) = t;
-                                A = assembleA(thetas_iter, Ord);
 
                                 E_t = calc_error(shiftedPgiven, kmax, svector, Ord, thetas_iter, class_iter);
 
-                                if E_t <= bestE
+                                if E_t < bestE
                                     besttheta = t;
                                     bestE = E_t;
                                 end
@@ -99,21 +100,21 @@ function [refinedProjections, thetasestimated, shiftsestimated, classestimated] 
                             thetas_iter(i) = besttheta;
                             E_t = calc_error(shiftedPgiven, kmax, svector, Ord, thetas_iter, class_iter);
 
-                            if E_t <= bestE
+                            if E_t < bestE
                                 besttheta = t;
                                 bestE = E_t;
                             end
                         end
                             
                         
-                        if bestE <= bestshiftE
+                        if bestE < bestshiftE
                             bestshift = -s;
                             bestshiftE = bestE;
                             finalbesttheta = besttheta;
                         end
                     end
 
-                    if bestshiftE <= bestclassE
+                    if bestshiftE < bestclassE
                         bestclassE = bestshiftE;
                         bestclass = c;
                         finalbestshift = bestshift;

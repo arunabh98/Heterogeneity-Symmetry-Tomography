@@ -3,7 +3,7 @@ function [clustered_projections, clustered_angles, cluster_class, original_clust
 
     % Cluster the projections.
     % Agglomerative hierarchical cluster tree
-    Z = linkage(projections', 'weighted', 'seuclidean');
+    Z = linkage(projections', 'single', 'euclidean');
     idx = cluster(Z,'Maxclust', num_clusters);
 
     C = zeros(size(projections, 1), num_clusters);
