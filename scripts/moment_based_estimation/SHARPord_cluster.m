@@ -25,14 +25,14 @@ function [refinedProjections, thetasestimated, shiftsestimated, classestimated] 
     Ehlccvalues_bystart = zeros(numstarts, 1);
 
     if noisyOrientations == 1
-        min_limit = initialThetaEstimate - 1;
-        max_limit = initialThetaEstimate + 1;
+        min_limit = initialThetaEstimate - 0;
+        max_limit = initialThetaEstimate + 0;
     else
         min_limit = repmat(-179, numkeep, 1);
         max_limit = repmat(180, numkeep, 1);
     end
 
-    parfor start = 1:numstarts
+    for start = 1:numstarts
         shiftestimated = initialshiftestimate;
         shiftedPgiven = correct_projection_shifts(Pgiven, shiftestimated);
 

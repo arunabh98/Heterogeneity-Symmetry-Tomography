@@ -1,5 +1,5 @@
 % Increase the number of parpool workers.
-parpool('local', 14)
+% parpool('local', 14)
 warning('off', 'MATLAB:rankDeficientMatrix');
 
 % Include the moment based estimation scripts and noise scripts.
@@ -19,7 +19,7 @@ P3 = read_process_image('refs_010.png', image_size);
 
 % Constants.
 non_uniform_distribution = 0;
-sigmaNoiseFraction = 0.05;
+sigmaNoiseFraction = 0.01;
 if non_uniform_distribution == 0
     filename = ...
         strcat('../results/heterogeneity/', num2str(sigmaNoiseFraction*100), '_percent_noise/');
@@ -34,9 +34,10 @@ max_shift_amplitude = 0;
 symmetry_prior = 1;
 noisy_orientations = 1;
 symmetry_method = 4;
-include_clustering = 1;
-num_clusters = 270;
-num_theta = 30000;
+include_clustering = 0;
+num_clusters = 100;
+num_theta = 270;
+max_angle_error = 0;
 
 % Create the folder to hold the results of the experiment.
 mkdir(strcat(filename, num2str(num_theta), '/all_variables/'));
@@ -101,7 +102,7 @@ disp('**** L2-norm error between the original projections and measured projectio
 disp(norm(measured_projections - original_projections, 'fro'));
 disp('');
 
-estimated_class_of_projections = randi(3, 1, num_theta);
+estimated_class_of_projections = original_class_of_projections;
 if include_clustering == 1
     disp('**** Initial - Cluster the projections ****');
     [clustered_projections, clustered_angles, cluster_class, original_class_of_projections] =...
@@ -131,9 +132,9 @@ theta_to_write(2, :) = original_class_of_projections;
 % If orientations are noisy or completely unknown.
 if noisy_orientations == 1
     if include_clustering == 1 
-        initial_theta = theta + randi([-1 1], 1, num_clusters);
+        initial_theta = theta + randi([-max_angle_error max_angle_error], 1, num_clusters);
     else 
-        initial_theta = theta + randi([-1 1], 1, num_theta);
+        initial_theta = theta + randi([-max_angle_error max_angle_error], 1, num_theta);
     end
 else
     if include_clustering == 1
