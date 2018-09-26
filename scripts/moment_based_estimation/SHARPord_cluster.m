@@ -7,7 +7,7 @@ function [refinedProjections, thetasestimated, shiftsestimated, classestimated] 
     numkeep = size(Pgiven, 2);
     kmax = numkeep - 1;
     if noisyOrientations == 1
-        numstarts = 3;
+        numstarts = 12;
     else
         numstarts = 12;
     end
@@ -36,7 +36,7 @@ function [refinedProjections, thetasestimated, shiftsestimated, classestimated] 
         shiftestimated = initialshiftestimate;
         shiftedPgiven = correct_projection_shifts(Pgiven, shiftestimated);
 
-        classestimated = initialClassEstimated; 
+        classestimated = randi(3, 1, size(Pgiven, 2)); 
         
         if noisyOrientations == 1
             thetasestimated = initialThetaEstimate;
@@ -81,10 +81,23 @@ function [refinedProjections, thetasestimated, shiftsestimated, classestimated] 
                         
                         shiftedPgiven = ....
                             correct_projection_shifts(Pgiven, shift_iter);
+
+                        if noisyOrientations ~= 1
+                            if c == 1
+                                max_limit_i = max_limit(i);
+                                min_limit_i = min_limit(i);
+                            else
+                                max_limit_i = besttheta + 2;
+                                min_limit_i = besttheta - 2;
+                            end
+                        else
+                            max_limit_i = max_limit(i);
+                            min_limit_i = min_limit(i);
+                        end
                          
                         err_t = err_for_all_angles(...
                             shiftedPgiven, kmax, svector, Ord, thetasestimated, class_iter,...
-                            max_limit(i), min_limit(i), i);
+                            max_limit_i, min_limit_i, i);
                         
                         [E_t, idx_err_t] = min(err_t);
                         if E_t < bestE

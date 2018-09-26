@@ -1,4 +1,0 @@
-Estimated image relative error: 54.26 
-Final single symmetric image mse error: 45.63 
-Final double symmetric image mse error: 46.49 
-Final non-symmetric image mse error: 52.65 

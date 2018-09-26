@@ -19,7 +19,7 @@ P3 = read_process_image('refs_010.png', image_size);
 
 % Constants.
 non_uniform_distribution = 0;
-sigmaNoiseFraction = 0.30;
+sigmaNoiseFraction = 0.05;
 if non_uniform_distribution == 0
     filename = ...
         strcat('../results/heterogeneity/', num2str(sigmaNoiseFraction*100), '_percent_noise/');
@@ -35,7 +35,7 @@ symmetry_prior = 1;
 noisy_orientations = 1;
 symmetry_method = 4;
 include_clustering = 1;
-num_clusters = 300;
+num_clusters = 270;
 num_theta = 30000;
 
 % Create the folder to hold the results of the experiment.
