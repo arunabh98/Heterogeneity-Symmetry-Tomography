@@ -32,7 +32,7 @@ function [refinedProjections, thetasestimated, shiftsestimated, classestimated] 
         max_limit = repmat(180, numkeep, 1);
     end
 
-    for start = 1:numstarts
+    parfor start = 1:numstarts
         shiftestimated = initialshiftestimate;
         shiftedPgiven = correct_projection_shifts(Pgiven, shiftestimated);
 
@@ -81,31 +81,16 @@ function [refinedProjections, thetasestimated, shiftsestimated, classestimated] 
                         
                         shiftedPgiven = ....
                             correct_projection_shifts(Pgiven, shift_iter);
-
-                        if c == 1
-                            for t = min_limit(i):max_limit(i)
-
-                                thetas_iter = thetasestimated;
-                                thetas_iter(i) = t;
-
-                                E_t = calc_error(shiftedPgiven, kmax, svector, Ord, thetas_iter, class_iter);
-
-                                if E_t < bestE
-                                    besttheta = t;
-                                    bestE = E_t;
-                                end
-                            end
-                        else
-                            thetas_iter = thetasestimated;
-                            thetas_iter(i) = besttheta;
-                            E_t = calc_error(shiftedPgiven, kmax, svector, Ord, thetas_iter, class_iter);
-
-                            if E_t < bestE
-                                besttheta = t;
-                                bestE = E_t;
-                            end
+                         
+                        err_t = err_for_all_angles(...
+                            shiftedPgiven, kmax, svector, Ord, thetasestimated, class_iter,...
+                            max_limit(i), min_limit(i), i);
+                        
+                        [E_t, idx_err_t] = min(err_t);
+                        if E_t < bestE
+                            bestE = E_t;
+                            besttheta = idx_err_t + min_limit(i) - 1;
                         end
-                            
                         
                         if bestE < bestshiftE
                             bestshift = -s;

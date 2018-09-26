@@ -19,7 +19,7 @@ P3 = read_process_image('refs_010.png', image_size);
 
 % Constants.
 non_uniform_distribution = 0;
-sigmaNoiseFraction = 0.40;
+sigmaNoiseFraction = 0.30;
 if non_uniform_distribution == 0
     filename = ...
         strcat('../results/heterogeneity/', num2str(sigmaNoiseFraction*100), '_percent_noise/');
