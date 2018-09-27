@@ -1,4 +1,4 @@
-function error_estimate = calc_error(projections, kmax, svector, Ord, angles, class_estimate)
+function error_estimate  = calc_error(projections, kmax, svector, Ord, angles, class_estimate)
 
 	% Seperate the projections and angles by their classes.
 	[projections1, angles1] = extract_projections_and_angles_for_class(...

@@ -19,7 +19,7 @@ P3 = read_process_image('refs_010.png', image_size);
 
 % Constants.
 non_uniform_distribution = 0;
-sigmaNoiseFraction = 0.01;
+sigmaNoiseFraction = 0.35;
 if non_uniform_distribution == 0
     filename = ...
         strcat('../results/heterogeneity/', num2str(sigmaNoiseFraction*100), '_percent_noise/');
@@ -34,9 +34,9 @@ max_shift_amplitude = 0;
 symmetry_prior = 1;
 noisy_orientations = 1;
 symmetry_method = 4;
-include_clustering = 0;
-num_clusters = 100;
-num_theta = 270;
+include_clustering = 1;
+num_clusters = 180;
+num_theta = 20000;
 max_angle_error = 0;
 
 % Create the folder to hold the results of the experiment.
@@ -102,10 +102,9 @@ disp('**** L2-norm error between the original projections and measured projectio
 disp(norm(measured_projections - original_projections, 'fro'));
 disp('');
 
-estimated_class_of_projections = original_class_of_projections;
 if include_clustering == 1
     disp('**** Initial - Cluster the projections ****');
-    [clustered_projections, clustered_angles, cluster_class, original_class_of_projections] =...
+    [clustered_projections, clustered_angles, original_class_of_projections] =...
         cluster_projections(measured_projections, num_clusters, theta, original_class_of_projections);
 
     % Save the original projections and mark the clustered projections as measured
@@ -121,13 +120,26 @@ if include_clustering == 1
     % Update the number of clusters after filtering.
     num_clusters = size(clustered_projections, 2);
     theta_to_write = zeros(10, num_clusters);
-
-    % First estimate of the class of the projections.
-    estimated_class_of_projections = cluster_class;
 end
 
 theta_to_write(1, :) = theta;
 theta_to_write(2, :) = original_class_of_projections;
+
+% % First estimate of the class of the projections.
+% Z = linkage(measured_projections', 'average', '@distfun');
+% idx = cluster(Z,'Maxclust', 3);
+
+[idx, C, ~, ~] = kmeans(measured_projections', 3,...
+        'distance', 'sqeuclidean', 'Replicates', 5, 'MaxIter',1000);
+
+class_1 = 1;
+class_2 = 2;
+class_3 = 3;
+
+estimated_class_of_projections = zeros(size(theta));
+estimated_class_of_projections(idx == 1) = class_1;
+estimated_class_of_projections(idx == 2) = class_2;
+estimated_class_of_projections(idx == 3) = class_3;
 
 % If orientations are noisy or completely unknown.
 if noisy_orientations == 1
@@ -162,7 +174,7 @@ theta_to_write(7, :) = estimated_shifts;
 disp('**** Moment based estimation ****');
 [refined_projections, noisy_theta, projection_shifts, refined_classes] = ...
     SHARPord_cluster(measured_projections, svector, sigmaNoise, max_shift_amplitude,...
-    estimated_shifts, initial_theta, noisy_orientations, estimated_class_of_projections);
+    estimated_shifts, initial_theta, noisy_orientations, estimated_class_of_projections, max_angle_error);
 disp('');
 projection_shifts = projection_shifts';
 noisy_theta = noisy_theta';

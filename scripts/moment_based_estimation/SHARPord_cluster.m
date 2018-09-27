@@ -1,13 +1,13 @@
 function [refinedProjections, thetasestimated, shiftsestimated, classestimated] = ...
     SHARPord_cluster(Pgiven, svector, sigmaNoise, shift_amplitude, initialshiftestimate,...
-        initialThetaEstimate, noisyOrientations, initialClassEstimated)
+        initialThetaEstimate, noisyOrientations, initialClassEstimated, angle_amplitude)
 
     addpath(genpath('../utilities'));
 
     numkeep = size(Pgiven, 2);
     kmax = numkeep - 1;
     if noisyOrientations == 1
-        numstarts = 12;
+        numstarts = 2;
     else
         numstarts = 12;
     end
@@ -25,8 +25,8 @@ function [refinedProjections, thetasestimated, shiftsestimated, classestimated] 
     Ehlccvalues_bystart = zeros(numstarts, 1);
 
     if noisyOrientations == 1
-        min_limit = initialThetaEstimate - 0;
-        max_limit = initialThetaEstimate + 0;
+        min_limit = initialThetaEstimate - angle_amplitude;
+        max_limit = initialThetaEstimate + angle_amplitude;
     else
         min_limit = repmat(-179, numkeep, 1);
         max_limit = repmat(180, numkeep, 1);
@@ -36,7 +36,7 @@ function [refinedProjections, thetasestimated, shiftsestimated, classestimated] 
         shiftestimated = initialshiftestimate;
         shiftedPgiven = correct_projection_shifts(Pgiven, shiftestimated);
 
-        classestimated = randi(3, 1, size(Pgiven, 2)); 
+        classestimated = initialClassEstimated; 
         
         if noisyOrientations == 1
             thetasestimated = initialThetaEstimate;
