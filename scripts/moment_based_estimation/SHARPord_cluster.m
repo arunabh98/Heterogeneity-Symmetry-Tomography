@@ -32,7 +32,7 @@ function [refinedProjections, thetasestimated, shiftsestimated, classestimated] 
         max_limit = repmat(180, numkeep, 1);
     end
 
-    for start = 1:numstarts
+    parfor start = 1:numstarts
         shiftestimated = initialshiftestimate;
         shiftedPgiven = correct_projection_shifts(Pgiven, shiftestimated);
 
