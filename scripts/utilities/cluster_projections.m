@@ -42,7 +42,7 @@ function [clustered_projections, clustered_angles, cluster_class, original_clust
     % Calculate the new variance of noise in the projections.
     sigmaNoise = sigmaNoise*num_clusters/size(original_theta, 2);
 
-    clustered_projections = denoise(clustered_projections, sigmaNoise, 50, 700);
+    clustered_projections = denoise(clustered_projections, sigmaNoise, 500, 700);
     clustered_projections = max(0, clustered_projections);
 
     % Calculate the angles and class of projections in each cluster.

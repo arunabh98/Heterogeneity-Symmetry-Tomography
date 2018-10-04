@@ -16,7 +16,7 @@ P3 = read_process_image('refs_010.png', image_size);
 
 % Constants.
 non_uniform_distribution = 0;
-sigmaNoiseFraction = 0.30;
+sigmaNoiseFraction = 0.40;
 if non_uniform_distribution == 0
     filename = ...
         strcat('../results/heterogeneity/', num2str(sigmaNoiseFraction*100), '_percent_noise/');
@@ -32,9 +32,9 @@ symmetry_prior = 1;
 noisy_orientations = 1;
 symmetry_method = 4;
 include_clustering = 1;
-num_clusters = 300;
+num_clusters = 540;
 num_theta = 30000;
-max_angle_error = 20;
+max_angle_error = 1;
 
 % Create the folder to hold the results of the experiment.
 mkdir(strcat(filename, num2str(num_theta), '/all_variables/'));
@@ -213,7 +213,7 @@ beta_rate = 0.001;
 
 disp('**** Optimization error without using symmetric prior ****');
 fprintf('\nIteration Error:            \n');
-for i=1:10
+for i=1:100
     prob_proj = calc_prob_for_proj(measured_projections, reconstructed_image1,...
         reconstructed_image2, reconstructed_image3, better_theta);
 
@@ -268,7 +268,7 @@ end
 
 [~, refined_class] = max(prob_proj);
 theta_to_write(5, :) = refined_class;
-theta_to_write(6, :) = all_theta;
+theta_to_write(6, :) = better_theta;
 
 % Write the thetas to csv file.
 csvwrite(strcat(filename,...
