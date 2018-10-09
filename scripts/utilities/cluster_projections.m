@@ -2,9 +2,64 @@ function [clustered_projections, clustered_angles, cluster_class, original_clust
     cluster_projections(projections, num_clusters, original_theta, original_class,...
     sigmaNoise)
 
+    % Cluster the projections.
+    % Agglomerative hierarchical cluster tree
+    Z = linkage(projections', 'average', 'euclidean');
+    num_clusters = inf;
+    for c=1.14:0.001:1.16
+        idx = cluster(Z, 'cutoff', c);
+        % idx = cluster(Z, 'Maxclust', 3);
+        
+        num_clus = size(unique(idx), 1);
+        
+        if (num_clus < num_clusters) && (num_clus > 300)
+            num_clusters = num_clus;
+            cutoff = c;
+            curr_idx = idx;
+        end
+    end
+    
+    C = zeros(size(projections, 1), num_clusters);
+    idx = curr_idx;
+    for i=1:num_clusters
+        projections_in_cluster = projections(:, idx == i);
+        C(:, i) = mean(projections_in_cluster, 2);
+    end
+    C = C';
+
+    nearest_idx = knnsearch(C, C, 'K', 2);
+    nearest_idx = nearest_idx(:, 2);
+
+    for i=1:num_clusters
+        num_proj_in_cluster = sum(idx == i);
+
+        if num_proj_in_cluster < 15
+            idx(idx == i) = nearest_idx(i);
+            nearest_idx(nearest_idx == i) = nearest_idx(i);
+        end
+    end
+
+    idx = idx + num_clusters + 1;
+    num_clusters = size(unique(idx), 1);
+
+    unique_idx = unique(idx);
+
+    c = 1;
+    for i=1:num_clusters
+        idx(idx == unique_idx(i)) = c;
+        c = c + 1;
+    end
+
+    C = zeros(size(projections, 1), num_clusters);
+    for i=1:num_clusters
+        projections_in_cluster = projections(:, idx == i);
+        C(:, i) = mean(projections_in_cluster, 2);
+    end
+    C = C';
+
     % K-means
     [idx, C, ~, ~] = kmeans(projections', num_clusters,...
-        'distance', 'sqeuclidean', 'Replicates', 5, 'MaxIter',1000);
+        'distance', 'sqeuclidean', 'Replicates', 5, 'MaxIter', 1000);
 
     % Make the Distance Matrix
     D = zeros(size(projections,2), num_clusters);
@@ -42,7 +97,7 @@ function [clustered_projections, clustered_angles, cluster_class, original_clust
     % Calculate the new variance of noise in the projections.
     sigmaNoise = sigmaNoise*num_clusters/size(original_theta, 2);
 
-    clustered_projections = denoise(clustered_projections, sigmaNoise, 500, 700);
+    clustered_projections = denoise(clustered_projections, sigmaNoise, 145, 50);
     clustered_projections = max(0, clustered_projections);
 
     % Calculate the angles and class of projections in each cluster.

@@ -1,16 +1,16 @@
-function err_t = err_for_all_angles(shiftedPgiven, kmax, svector, Ord,...
-    thetasestimated, class_iter, max_limit, min_limit, i)
+function err_t = err_for_all_angles(Pgiven, kmax, svector, Ord,...
+    thetasestimated, max_limit, min_limit, i, PMord)
 
 	range_size = round(max_limit - min_limit + 1);
 	err_t = zeros(range_size, 1);
 
 	parfor t = 1:range_size
-        warning('off', 'MATLAB:rankDeficientMatrix');
         thetas_iter = thetasestimated;
         thetas_iter(i) = t + min_limit - 1;
 
-        err_t(t)  = calc_error(...
-            shiftedPgiven, kmax, svector, Ord,...
-            thetas_iter, class_iter);
+        A = assembleA(thetas_iter, Ord);
+        IMestimated = A \ PMord;
+        E_tvec = A * IMestimated - PMord;
+        err_t(t) = norm(E_tvec, 2);
     end
 end
