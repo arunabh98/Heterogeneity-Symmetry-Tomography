@@ -1,6 +1,6 @@
 function [refinedProjections, thetasestimated, shiftsestimated] = ...
     SHARPord(Pgiven, svector, sigmaNoise, shift_amplitude, initialshiftestimate,...
-        initialThetaEstimate, noisyOrientations, angle_amplitude)
+        initialThetaEstimate, noisyOrientations)
 
     addpath(genpath('../utilities'));
 
@@ -13,6 +13,8 @@ function [refinedProjections, thetasestimated, shiftsestimated] = ...
     end
     Ord = 8;
 
+    Pgiven = denoise(Pgiven, sigmaNoise, 50, 700);
+    Pgiven = max(0, Pgiven);
     refinedProjections = Pgiven;
 
     numiter = 40;   
@@ -22,8 +24,8 @@ function [refinedProjections, thetasestimated, shiftsestimated] = ...
     Ehlccvalues_bystart = zeros(numstarts, 1);
 
     if noisyOrientations == 1
-        min_limit = initialThetaEstimate - angle_amplitude;
-        max_limit = initialThetaEstimate + angle_amplitude;
+        min_limit = initialThetaEstimate - 1;
+        max_limit = initialThetaEstimate + 1;
     else
         min_limit = repmat(-179, numkeep, 1);
         max_limit = repmat(180, numkeep, 1);

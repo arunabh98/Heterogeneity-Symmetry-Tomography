@@ -16,7 +16,7 @@ function error_mse = calculate_rmse_error(test_image, original_image)
         end
         
         if norm(flipped_image(:) - original_image(:), 2) < dist_error
-            dist_error = norm(flipped_image(:) - original_image(:), 2)
+            dist_error = norm(flipped_image(:) - original_image(:), 2);
             rot_ang = ang;
             flip_index = 1;
         end

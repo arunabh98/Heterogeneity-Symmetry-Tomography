@@ -56,8 +56,4 @@ function [projection_classes, clustered_projections, clustered_angles, cluster_c
         class_cluster = cluster_class(i);
         projection_classes(idx == i) = class_cluster;
     end
-
-    % Display number of wrong predictions.
-    disp(sum(projection_classes ~= original_class));
-
 end
