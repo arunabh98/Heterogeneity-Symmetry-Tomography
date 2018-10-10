@@ -84,7 +84,7 @@ function reconstructed_image = reconstruct_image_symmetry(...
 
     disp('**** Optimization error using symmetric prior ****');
     fprintf('\nIteration Error:            \n');
-    for i=1:10
+    for i=1:500
 
         % Use the projection prior
         gradient_vector = ...
