@@ -34,7 +34,7 @@ noisy_orientations = 0;
 symmetry_method = 4;
 include_clustering = 1;
 num_clusters = 540;
-num_theta = 10000;
+num_theta = 30000;
 max_angle_error = 1;
 max_shift_amplitude = 0;
 

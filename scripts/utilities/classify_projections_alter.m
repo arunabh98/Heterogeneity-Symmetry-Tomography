@@ -24,7 +24,7 @@ function [projection_classes, clustered_projections, clustered_angles, cluster_c
     std_theta = zeros(1, num_clusters);
     std_class = zeros(1, num_clusters);
     idx = curr_idx;
-    for i=1:num_clusters
+    parfor i=1:num_clusters
         projections_in_cluster = projections(:, idx == i);
         C(:, i) = mean(projections_in_cluster, 2);
         class_clustered(i) = mode(original_class(idx == i));
