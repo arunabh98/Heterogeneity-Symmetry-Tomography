@@ -12,13 +12,13 @@ addpath(genpath('utilities'));
 
 % Get the images
 image_size = 100;
-P1 = read_process_image('refs_011.png', image_size);
-P2 = read_process_image('refs_015.png', image_size);
-P3 = read_process_image('refs_018.jpg', image_size);
+P1 = read_process_image('proteins/protein_2/refs_001.png', image_size);
+P2 = read_process_image('proteins/protein_2/refs_002.png', image_size);
+P3 = read_process_image('proteins/protein_2/refs_003.png', image_size);
 
 % Constants.
 non_uniform_distribution = 0;
-sigmaNoiseFraction = 0.25;
+sigmaNoiseFraction = 0.20;
 if non_uniform_distribution == 0
     filename = ...
         strcat('../results/heterogeneity/', num2str(sigmaNoiseFraction*100), '_percent_noise/');
@@ -34,8 +34,8 @@ noisy_orientations = 0;
 symmetry_method = 4;
 include_clustering = 1;
 num_clusters = 540;
-num_theta = 30000;
-max_angle_error = 0;
+num_theta = 10000;
+max_angle_error = 1;
 max_shift_amplitude = 0;
 
 % Create the folder to hold the results of the experiment.
@@ -94,4 +94,3 @@ disp('**** Initial classification of projections ****');
 [projection_classes, ~, ~, ~] =...
     classify_projections_alter(measured_projections, theta, original_class_of_projections,...
         sigmaNoise);
-
