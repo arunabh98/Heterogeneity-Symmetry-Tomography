@@ -1,5 +1,5 @@
 % Increase the number of parpool workers.
-parpool('local', 14)
+% parpool('local', 14)
 % warning('off', 'MATLAB:rankDeficientMatrix');
 
 % Include the moment based estimation scripts and noise scripts.
@@ -34,7 +34,7 @@ noisy_orientations = 0;
 symmetry_method = 4;
 include_clustering = 1;
 num_clusters = 540;
-num_theta = 40000;
+num_theta = 30000;
 max_angle_error = 0;
 max_shift_amplitude = 0;
 
@@ -88,83 +88,10 @@ disp('**** L2-norm error between the original projections and measured projectio
 disp(norm(measured_projections - original_projections, 'fro'));
 disp('');
 
+
+
 disp('**** Initial classification of projections ****');
 [projection_classes, ~, ~, ~] =...
-    classify_projections(measured_projections, num_clusters, theta, original_class_of_projections,...
+    classify_projections_alter(measured_projections, theta, original_class_of_projections,...
         sigmaNoise);
-
-disp('**** Initial classification performance ****')
-fprintf('Number of projections classified correctly: %d',...
-        sum(projection_classes ~= original_class_of_projections));
-
-% No. of clusters to create while estimating the structure.
-num_clusters = 150;
-
-%% Estimate the first image %%
-class_measured_projections = measured_projections(:, projection_classes == 1);
-class_original_projections = original_projections(:, projection_classes == 1);
-actual_classes = original_class_of_projections(projection_classes == 1);
-class_theta = theta(projection_classes == 1);
-class_num_theta = size(class_theta, 2);
-% idx = detect_outliers(projections_1, theta_1, num_clusters,...
-%                       sigmaNoise, actual_classes, noisy_orientations,...
-%                       svector, max_angle_error, output_size);
-
-disp('**** Reconstruct the first image ****')
-reconstructed_image_1 = reconstruct_image_symmetry(...
-    class_measured_projections, class_original_projections,...
-    num_clusters, class_theta, sigmaNoise, class_num_theta, noisy_orientations,...
-    max_shift_amplitude, svector, output_size);
-
-%% Estimate the second image %%
-class_measured_projections = measured_projections(:, projection_classes == 2);
-class_original_projections = original_projections(:, projection_classes == 2);
-actual_classes = original_class_of_projections(projection_classes == 2);
-class_theta = theta(projection_classes == 2);
-class_num_theta = size(class_theta, 2);
-% idx = detect_outliers(projections_1, theta_1, num_clusters,...
-%                       sigmaNoise, actual_classes, noisy_orientations,...
-%                       svector, max_angle_error, output_size);
-
-disp('**** Reconstruct the second image ****')
-reconstructed_image_2 = reconstruct_image_symmetry(...
-    class_measured_projections, class_original_projections,...
-    num_clusters, class_theta, sigmaNoise, class_num_theta, noisy_orientations,...
-    max_shift_amplitude, svector, output_size);
-
-%% Estimate the third image %%
-class_measured_projections = measured_projections(:, projection_classes == 3);
-class_original_projections = original_projections(:, projection_classes == 3);
-actual_classes = original_class_of_projections(projection_classes == 3);
-class_theta = theta(projection_classes == 3);
-class_num_theta = size(class_theta, 2);
-
-% idx = detect_outliers(projections_1, theta_1, num_clusters,...
-%                       sigmaNoise, actual_classes, noisy_orientations,...
-%                       svector, max_angle_error, output_size);
-
-disp('**** Reconstruct the third image ****')
-reconstructed_image_3 = reconstruct_image_symmetry(...
-    class_measured_projections, class_original_projections,...
-    num_clusters, class_theta, sigmaNoise, class_num_theta, noisy_orientations,...
-    max_shift_amplitude, svector, output_size);
-
-%% Store the results %%
-formatSpec = 'Final image rmse error: %4.2f \r\n';
-fprintf(fileID, formatSpec, calculate_rmse_error(reconstructed_image_1, P1));
-fprintf(fileID, formatSpec, calculate_rmse_error(reconstructed_image_2, P2));
-fprintf(fileID, formatSpec, calculate_rmse_error(reconstructed_image_3, P3));
-
-% Save the images.
-imwrite(reconstructed_image_1, ...
-    strcat(filename, num2str(num_theta), '/reconstructed_image_1.png'));
-imwrite(reconstructed_image_2, ...
-    strcat(filename, num2str(num_theta), '/reconstructed_image_2.png'));
-imwrite(reconstructed_image_3, ...
-    strcat(filename, num2str(num_theta), '/reconstructed_image_3.png'));
-
-% Save the important variables.
-save(strcat(filename, num2str(num_theta), '/all_variables/all_variables.mat'),...
-    '-regexp',...
-    '^(?!(measured_projections|original_projections|projections)$).');
 
