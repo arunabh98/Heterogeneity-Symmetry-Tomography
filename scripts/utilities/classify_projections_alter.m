@@ -1,4 +1,4 @@
-function [projection_classes, clustered_projections, clustered_angles, cluster_class] = ...
+function [projection_classes] = ...
     classify_projections_alter(projections, original_theta, original_class,...
     sigmaNoise, output_size)
 
@@ -34,6 +34,11 @@ function [projection_classes, clustered_projections, clustered_angles, cluster_c
     end
     clustered_projections = C;
 
+    % Denoise the projections.
+%     sigmaNoise = sigmaNoise*num_clusters/size(original_theta, 2);
+    clustered_projections = denoise(clustered_projections, sigmaNoise, 145, 100);
+    clustered_projections = max(0, clustered_projections);
+
     clustered_projections = [clustered_projections flipud(clustered_projections)];
 
     % Constants
@@ -47,18 +52,34 @@ function [projection_classes, clustered_projections, clustered_angles, cluster_c
 
     % Define diagonal matrix D.
     D = diag(sum(W, 2));
-    W_tilda = inv(D)*W*inv(D);
+    W_tilda = D\W/D;
     D_tilda = diag(sum(W_tilda, 2));
 
     L = D_tilda - W_tilda;
 
-    [V, E] = eig(L, D_tilda);
+    [V, ~] = eig(L, D_tilda);
 
     phi1 = -V(:, 2);
     phi2 = -V(:, 3);
     phi3 = -V(:, 4);
-
+    coeff = [phi1 phi2 phi3];
+    
+    % Extract the three main eigenvectors.
+    coeff = coeff(1:num_clusters, :);
     phi1 = phi1(1:num_clusters);
     phi2 = phi2(1:num_clusters);
     phi3 = phi3(1:num_clusters);
+    
+    % Visualize the clusters.
+    h(1) = figure; scatter3(phi1, phi2, phi3, 10, class_clustered');
+    
+    % Cluster using single linkage hierachical clustering
+    Z = linkage(coeff, 'single', 'euclidean');
+    c = cluster(Z, 'Maxclust', 3);
+    h(2) = figure; scatter3(phi1, phi2, phi3, 10, c);
+
+    % Save the figures
+    savefig(h, 'TwoFiguresFile.fig');
+    close(h);
+    projection_classes = c;
 end

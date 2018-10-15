@@ -18,7 +18,7 @@ P3 = read_process_image('proteins/protein_2/refs_003.png', image_size);
 
 % Constants.
 non_uniform_distribution = 0;
-sigmaNoiseFraction = 0.20;
+sigmaNoiseFraction = 0.10;
 if non_uniform_distribution == 0
     filename = ...
         strcat('../results/heterogeneity/', num2str(sigmaNoiseFraction*100), '_percent_noise/');
@@ -34,7 +34,7 @@ noisy_orientations = 0;
 symmetry_method = 4;
 include_clustering = 1;
 num_clusters = 540;
-num_theta = 30000;
+num_theta = 5000;
 max_angle_error = 1;
 max_shift_amplitude = 0;
 
@@ -88,9 +88,7 @@ disp('**** L2-norm error between the original projections and measured projectio
 disp(norm(measured_projections - original_projections, 'fro'));
 disp('');
 
-
-
 disp('**** Initial classification of projections ****');
-[projection_classes, ~, ~, ~] =...
+[projection_classes] =...
     classify_projections_alter(measured_projections, theta, original_class_of_projections,...
         sigmaNoise);
