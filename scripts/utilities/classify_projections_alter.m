@@ -79,7 +79,7 @@ function [projection_classes] = ...
     h(2) = figure; scatter3(phi1, phi2, phi3, 10, c);
 
     % Save the figures
-    savefig(h, 'TwoFiguresFile.fig');
+    savefig(h, 'results/TwoFiguresFile.fig');
     close(h);
     projection_classes = c;
 end
