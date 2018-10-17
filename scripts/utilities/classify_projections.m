@@ -1,6 +1,6 @@
 function [projection_classes, clustered_projections, clustered_angles, cluster_class] = ...
     classify_projections(projections, num_clusters, original_theta, original_class,...
-    sigmaNoise)
+    sigmaNoise, no_of_classes)
 
     % K-means
     [idx, clustered_projections, ~, ~] = kmeans(projections', num_clusters,...
@@ -27,15 +27,26 @@ function [projection_classes, clustered_projections, clustered_angles, cluster_c
 
     % Initialize the cluster clases.
     [zeroth_moment_sorted, ~] = sort(zeroth_moment);
-    first_threshold = zeroth_moment_sorted(round(new_num_clusters/3));
-    second_threshold = zeroth_moment_sorted(round(2*new_num_clusters/3));
+    thresholds = zeros(1, no_of_classes - 1);
+    parfor i=1:(no_of_classes - 1)
+        thresholds(i) = zeroth_moment_sorted(round(i*new_num_clusters/no_of_classes));
+    end
+
     cluster_class = zeros(1, new_num_clusters);
-    cluster_class(zeroth_moment < first_threshold) =...
-        mode(original_cluster_class(zeroth_moment < first_threshold));
-    cluster_class(zeroth_moment < second_threshold & zeroth_moment >= first_threshold) =...
-        mode(original_cluster_class(zeroth_moment < second_threshold & zeroth_moment >= first_threshold));
-    cluster_class(zeroth_moment >= second_threshold) =...
-        mode(original_cluster_class(zeroth_moment >= second_threshold));
+
+    % The first class.
+    cluster_class(zeroth_moment < thresholds(1)) =...
+        mode(original_cluster_class(zeroth_moment < thresholds(1)));
+
+    % Rest all classes.
+    for i=2:no_of_classes-1
+        cluster_class(zeroth_moment < thresholds(i) & zeroth_moment >=  thresholds(i-1)) =...
+            mode(original_cluster_class(zeroth_moment < thresholds(i) & zeroth_moment >=  thresholds(i-1)));
+    end
+
+    % The last class.
+    cluster_class(zeroth_moment >= thresholds(no_of_classes - 1)) =...
+        mode(original_cluster_class(zeroth_moment >= thresholds(no_of_classes - 1)));
 
     % Analyze cluster purity.
     original_cluster_purity = zeros(1, num_clusters);
@@ -48,6 +59,7 @@ function [projection_classes, clustered_projections, clustered_angles, cluster_c
             (sum(classProjs == frequent_original_class)/size(classProjs, 2))*100;
     end
     
+    disp('');
     disp(mean(original_cluster_purity, 2));
 
     projection_classes = zeros(1, size(projections, 2));
