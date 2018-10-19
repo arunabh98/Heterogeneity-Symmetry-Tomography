@@ -1,6 +1,6 @@
-function [projection_classes] = ...
+function projection_classes = ...
     classify_projections_alter(projections, original_theta, original_class,...
-    sigmaNoise, output_size)
+    sigmaNoise, output_size, no_of_classes)
 
     % Agglomerative clustering.
     Z = linkage(projections', 'average', 'euclidean');
@@ -35,7 +35,7 @@ function [projection_classes] = ...
     clustered_projections = C;
 
     % Denoise the projections.
-%     sigmaNoise = sigmaNoise*num_clusters/size(original_theta, 2);
+    sigmaNoise = sigmaNoise*num_clusters/size(original_theta, 2);
     clustered_projections = denoise(clustered_projections, sigmaNoise, 145, 100);
     clustered_projections = max(0, clustered_projections);
 
@@ -69,17 +69,64 @@ function [projection_classes] = ...
     phi1 = phi1(1:num_clusters);
     phi2 = phi2(1:num_clusters);
     phi3 = phi3(1:num_clusters);
+    class_clustered = class_clustered';
     
     % Visualize the clusters.
-    h(1) = figure; scatter3(phi1, phi2, phi3, 10, class_clustered');
-    
-    % Cluster using single linkage hierachical clustering
-    Z = linkage(coeff, 'single', 'euclidean');
-    c = cluster(Z, 'Maxclust', 3);
-    h(2) = figure; scatter3(phi1, phi2, phi3, 10, c);
+    figure; scatter3(phi1, phi2, phi3, 10, class_clustered');
+    it = 0;
+    % best_clustering
+    deviation = inf;
+    while(it < 500)
+        random_index = randperm(num_clusters, round(num_clusters/(rand() + 1)));
+        random_points = coeff(random_index, :);
 
-    % Save the figures
-    savefig(h, 'results/TwoFiguresFile.fig');
-    close(h);
-    projection_classes = c;
+        % Cluster the random points.
+        Z = linkage(random_points, 'single', 'euclidean');
+        c = cluster(Z, 'Maxclust', no_of_classes);
+        
+        min_num_cluster = min(hist(c, unique(c)));
+
+        if abs(min_num_cluster - (num_clusters/no_of_classes)) < deviation
+            deviation = abs(min_num_cluster - (num_clusters/no_of_classes));
+            cluster_class = zeros(1, num_clusters);
+            cluster_class(random_index) = c;
+            best_idx = c;
+            best_random_points = random_points;
+            best_random_index = random_index;
+        end
+        
+        it = it + 1;
+    end
+    
+    if deviation > 150
+        disp('Clusters cannot be automatically identified.');
+        return;
+    end
+
+    % Points not identified.
+    index = find(cluster_class == 0);
+    remaining_points = coeff(index, :);
+    % Identify the remaining points.
+    [~, I] = pdist2(best_random_points, remaining_points, 'euclidean', 'Smallest', 1);
+    
+    cluster_class(index) = best_idx(I);
+
+    % Now assign the most likely class.
+    for i=1:no_of_classes
+        cluster_class(cluster_class == i) = no_of_classes + i;
+    end
+    for i=1:no_of_classes
+        cluster_class(cluster_class == (no_of_classes + i)) = ...
+            mode(class_clustered(cluster_class == (no_of_classes + i)));
+    end
+
+    % Display the classified points.
+    figure; scatter3(phi1, phi2, phi3, 10, cluster_class);
+
+    projection_classes = zeros(1, size(projections, 2));
+    % Now assign all projections their classes.
+    for i=1:num_clusters
+        class_cluster = cluster_class(i);
+        projection_classes(idx == i) = class_cluster;
+    end
 end
