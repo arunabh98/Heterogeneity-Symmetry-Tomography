@@ -14,7 +14,7 @@ addpath(genpath('noise_scripts'));
 addpath(genpath('utilities'));
 
 % Get the images of all the classes.
-no_of_classes = 3;
+no_of_classes = 5;
 image_size = 100;
 
 P = zeros(image_size, image_size, no_of_classes);
@@ -24,7 +24,7 @@ end
 
 % Constants.
 non_uniform_distribution = 0;
-sigmaNoiseFraction = 0.25;
+sigmaNoiseFraction = 0.40;
 if non_uniform_distribution == 0
     filename = ...
         strcat('../results/heterogeneity/num_class_', num2str(no_of_classes), '/', num2str(sigmaNoiseFraction*100), '_percent_noise/');
@@ -40,7 +40,7 @@ noisy_orientations = 0;
 symmetry_method = 4;
 include_clustering = 1;
 num_clusters = 540;
-num_theta = 30000;
+num_theta = 25000;
 max_angle_error = 0;
 max_shift_amplitude = 0;
 

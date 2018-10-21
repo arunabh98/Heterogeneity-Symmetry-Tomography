@@ -25,28 +25,32 @@ function [projection_classes, clustered_projections, clustered_angles, cluster_c
         zeroth_moment(i) = sum(clustered_projections(:, i));
     end
 
-    % Initialize the cluster clases.
-    [zeroth_moment_sorted, ~] = sort(zeroth_moment);
-    thresholds = zeros(1, no_of_classes - 1);
-    parfor i=1:(no_of_classes - 1)
-        thresholds(i) = zeroth_moment_sorted(round(i*new_num_clusters/no_of_classes));
-    end
+    if no_of_classes > 1
+        % Initialize the cluster clases.
+        [zeroth_moment_sorted, ~] = sort(zeroth_moment);
+        thresholds = zeros(1, no_of_classes - 1);
+        parfor i=1:(no_of_classes - 1)
+            thresholds(i) = zeroth_moment_sorted(round(i*new_num_clusters/no_of_classes));
+        end
 
-    cluster_class = zeros(1, new_num_clusters);
+        cluster_class = zeros(1, new_num_clusters);
 
-    % The first class.
-    cluster_class(zeroth_moment < thresholds(1)) =...
-        mode(original_cluster_class(zeroth_moment < thresholds(1)));
+        % The first class.
+        cluster_class(zeroth_moment < thresholds(1)) =...
+            mode(original_cluster_class(zeroth_moment < thresholds(1)));
 
-    % Rest all classes.
-    for i=2:no_of_classes-1
-        cluster_class(zeroth_moment < thresholds(i) & zeroth_moment >=  thresholds(i-1)) =...
-            mode(original_cluster_class(zeroth_moment < thresholds(i) & zeroth_moment >=  thresholds(i-1)));
-    end
+        % Rest all classes.
+        for i=2:no_of_classes-1
+            cluster_class(zeroth_moment < thresholds(i) & zeroth_moment >=  thresholds(i-1)) =...
+                mode(original_cluster_class(zeroth_moment < thresholds(i) & zeroth_moment >=  thresholds(i-1)));
+        end
 
-    % The last class.
-    cluster_class(zeroth_moment >= thresholds(no_of_classes - 1)) =...
-        mode(original_cluster_class(zeroth_moment >= thresholds(no_of_classes - 1)));
+        % The last class.
+        cluster_class(zeroth_moment >= thresholds(no_of_classes - 1)) =...
+            mode(original_cluster_class(zeroth_moment >= thresholds(no_of_classes - 1)));
+    else
+        cluster_class = ones(1, new_num_clusters);
+    end;
 
     % Analyze cluster purity.
     original_cluster_purity = zeros(1, num_clusters);
