@@ -1,9 +1,12 @@
+close all;
+clear all;
+clc;
+
 % Increase the number of parpool workers.
 myCluster = parcluster('local');
 myCluster.NumWorkers = 28;
 saveProfile(myCluster); 
 parpool('local', 28);
-% warning('off', 'MATLAB:rankDeficientMatrix');
 
 % Include the moment based estimation scripts and noise scripts.
 addpath(genpath('../data'));
@@ -13,9 +16,10 @@ addpath(genpath('moment_based_estimation'));
 addpath(genpath('noise_scripts'));
 addpath(genpath('utilities'));
 addpath(genpath('polynomial_fit'));
+addpath(genpath('clustering_algorithms'))
 
 % Get the images of all the classes.
-no_of_classes = 4;
+no_of_classes = 2;
 image_size = 100;
 
 P = zeros(image_size, image_size, no_of_classes);
@@ -25,7 +29,7 @@ end
 
 % Constants.
 non_uniform_distribution = 0;
-sigmaNoiseFraction = 0.20;
+sigmaNoiseFraction = 0.10;
 if non_uniform_distribution == 0
     filename = ...
         strcat('../results/heterogeneity/num_class_', num2str(no_of_classes), '/', num2str(sigmaNoiseFraction*100), '_percent_noise/');
@@ -40,8 +44,7 @@ symmetry_prior = 1;
 noisy_orientations = 0;
 symmetry_method = 4;
 include_clustering = 1;
-num_clusters = 540;
-num_theta = 30000;
+num_theta = 20000;
 max_angle_error = 0;
 max_shift_amplitude = 0;
 
@@ -95,13 +98,15 @@ disp('');
 disp('**** Initial classification of projections ****');
 projection_classes =...
     classify_projections_alter(measured_projections, theta, original_class_of_projections,...
-        sigmaNoise, output_size, no_of_classes);
+        sigmaNoise, no_of_classes, filename);
 
 disp('**** Initial classification performance ****')
 fprintf('Number of projections classified correctly: %d \r\n',...
         sum(projection_classes ~= original_class_of_projections));
 formatSpec = 'Number of projections classified correctly: %d \r\n';
 fprintf(fileID, formatSpec, sum(projection_classes ~= original_class_of_projections));
+
+return;
 
 % No. of clusters to create while estimating the structure.
 num_clusters = 50;

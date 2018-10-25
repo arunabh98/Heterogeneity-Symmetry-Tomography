@@ -7,7 +7,7 @@ addpath(genpath('utilities'));
 
 % Get the images of all the classes.
 no_of_classes = 1;
-image_size = 50;
+image_size = 100;
 
 P = zeros(image_size, image_size, no_of_classes);
 parfor i=1:no_of_classes
@@ -51,10 +51,11 @@ symmetry_prior = 1;
 noisy_orientations = 1;
 symmetry_method = 4;
 include_clustering = 1;
-num_clusters = 540;
-num_theta = 5000;
+num_clusters = 100;
+num_theta = 300;
 max_angle_error = 0;
 max_shift_amplitude = 0;
+num_freq = image_size/2;
 
 % Create the folder to hold the results of the experiment.
 mkdir(strcat(filename, num2str(num_theta), '/all_variables/'));
@@ -127,7 +128,7 @@ for i=1:no_of_classes
     reconstructed_image = reconstruct_image_dct(...
         class_measured_projections, class_original_projections,...
         num_clusters, class_theta, sigmaNoise, class_num_theta, noisy_orientations,...
-        max_shift_amplitude, svector, output_size);
+        max_shift_amplitude, svector, output_size, num_freq);
 
     % Save the result.
     formatSpec = 'Final image rmse error: %4.2f \r\n';
