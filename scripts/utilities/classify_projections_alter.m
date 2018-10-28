@@ -65,6 +65,8 @@ function projection_classes = ...
     coeff = [phi1 phi2 phi3];
     
     % Extract the three main eigenvectors.
+    V = -V;
+    V = V(1:num_clusters, :);
     coeff = coeff(1:num_clusters, :);
     phi1 = phi1(1:num_clusters);
     phi2 = phi2(1:num_clusters);
@@ -107,40 +109,48 @@ function projection_classes = ...
     figure; scatter3(phi1, phi2, phi3, 10, cluster_class);
     savefig(strcat(filename, num2str(size(original_theta, 2)), '/initial_classification.fig'));
 
-    % Create the polynomials based on initial classification of points.
-    polynomials = [];
-    parfor i=1:no_of_classes
-        % Enter cluster algorithm.
-        random_index = find(cluster_class == i);
-        random_points = coeff(random_index, :);
+    data_out = kernel_pca(coeff', 2);
+    figure; gscatter(data_out(1, :), data_out(2, :), class_clustered);
+    savefig(strcat(filename, num2str(size(original_theta, 2)), '/reduced_dimention.fig'));
 
-        polynomial = best_polynomial_fit(random_points);
+    % % Kernel K-means clustering.
+    % init = cluster_class;
+    % refined_cluster_class = knKmeans(coeff', init, @knGauss);
 
-        polynomials = [polynomials; polynomial]; 
-        estimated_value = polyvaln(polynomial, random_points(:, 1:2));
+    % % Create the polynomials based on initial classification of points.
+    % polynomials = [];
+    % parfor i=1:no_of_classes
+    %     % Enter cluster algorithm.
+    %     random_index = find(cluster_class == i);
+    %     random_points = coeff(random_index, :);
 
-        % Plot the actual points.
-        figure; scatter3(random_points(:, 1), random_points(:, 2), random_points(:, 3), 10);
-        hold on;
-        % Plot the fitted points.
-        scatter3(random_points(:, 1), random_points(:, 2), estimated_value, 10);
-        hold off;
-        savefig(strcat(filename, num2str(size(original_theta, 2)), '/polynomial_fit_', num2str(i),'.fig'));
-    end
+    %     polynomial = best_polynomial_fit(random_points);
 
-    % Assign points based on above created polynomials.
-    estimated_values = zeros(num_clusters, no_of_classes);
-    parfor j=1:no_of_classes
-        estimated_values(:, j) = polyvaln(polynomials(j), coeff(:, 1:2));
-    end
-    estimated_values = abs(estimated_values - repmat(coeff(:, 3), 1, no_of_classes));
-    [~, refined_cluster_class] = min(estimated_values, [], 2);
-    refined_cluster_class = refined_cluster_class';
+    %     polynomials = [polynomials; polynomial]; 
+    %     estimated_value = polyvaln(polynomial, random_points(:, 1:2));
+
+    %     % Plot the actual points.
+    %     figure; scatter3(random_points(:, 1), random_points(:, 2), random_points(:, 3), 10);
+    %     hold on;
+    %     % Plot the fitted points.
+    %     scatter3(random_points(:, 1), random_points(:, 2), estimated_value, 10);
+    %     hold off;
+    %     savefig(strcat(filename, num2str(size(original_theta, 2)), '/polynomial_fit_', num2str(i),'.fig'));
+    % end
+
+    % % Assign points based on above created polynomials.
+    % estimated_values = zeros(num_clusters, no_of_classes);
+    % parfor j=1:no_of_classes
+    %     estimated_values(:, j) = polyvaln(polynomials(j), coeff(:, 1:2));
+    % end
+    % estimated_values = abs(estimated_values - repmat(coeff(:, 3), 1, no_of_classes));
+    % [~, refined_cluster_class] = min(estimated_values, [], 2);
+    % refined_cluster_class = refined_cluster_class';
 
     % Plot the refined cluster classes.
-    figure; scatter3(phi1, phi2, phi3, 10, refined_cluster_class);
-    savefig(strcat(filename, num2str(size(original_theta, 2)), '/final_classification.fig'));
-    cluster_class = refined_cluster_class;
+    % figure; scatter3(phi1, phi2, phi3, 10, refined_cluster_class);
+    % savefig(strcat(filename, num2str(size(original_theta, 2)), '/final_classification.fig'));
+    % cluster_class = refined_cluster_class;
 
     % Now assign the most likely class.
     for i=1:no_of_classes

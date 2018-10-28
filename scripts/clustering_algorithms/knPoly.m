@@ -9,11 +9,11 @@ function K = knPoly(X, Y, o, c)
 %   K: nx x ny kernel matrix
 % Written by Mo Chen (sth4nth@gmail.com).
 if nargin < 4
-    c = 0;
+    c = 1;
 end
 
 if nargin < 3
-    o = 3;
+    o = 4;
 end
 
 if nargin < 2 || isempty(Y)  

@@ -1,12 +1,11 @@
 close all;
-clear all;
 clc;
 
 % Increase the number of parpool workers.
-myCluster = parcluster('local');
-myCluster.NumWorkers = 28;
-saveProfile(myCluster); 
-parpool('local', 28);
+% myCluster = parcluster('local');
+% myCluster.NumWorkers = 2;
+% saveProfile(myCluster); 
+% parpool('local', 2);
 
 % Include the moment based estimation scripts and noise scripts.
 addpath(genpath('../data'));
@@ -44,7 +43,7 @@ symmetry_prior = 1;
 noisy_orientations = 0;
 symmetry_method = 4;
 include_clustering = 1;
-num_theta = 20000;
+num_theta = 8000;
 max_angle_error = 0;
 max_shift_amplitude = 0;
 

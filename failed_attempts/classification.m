@@ -1,15 +1,15 @@
-% % DBSCAN Clustering algorithm.
-    % epsilon=0.07;
-    % MinPts=10;
-    % cluster_class=DBSCAN(coeff,epsilon,MinPts);
+% DBSCAN Clustering algorithm.
+epsilon=0.07;
+MinPts=10;
+cluster_class=DBSCAN(coeff,epsilon,MinPts);
 
-    % Kernel K-means clustering.
-    init = cluster_class;
-    cluster_class = knKmeans(coeff', init, @knPoly);
+% Kernel K-means clustering.
+init = cluster_class;
+cluster_class = knKmeans(coeff', init, @knPoly);
 
-    % Visualize the clusters.
-    no_of_classes = size(unique(cluster_class), 1);
-    figure; scatter3(phi1, phi2, phi3, 10, cluster_class);
+% Visualize the clusters.
+no_of_classes = size(unique(cluster_class), 1);
+figure; scatter3(phi1, phi2, phi3, 10, cluster_class);
 
 % it = 0;
     % % best_clustering
