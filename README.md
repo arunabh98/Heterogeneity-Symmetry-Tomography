@@ -28,7 +28,7 @@ below -
 
 <div class="row">
   <div class="column">
-    <img src="/assets/btp/orig.png">
+    <img src="orig.png">
   </div>
 </div>
 
@@ -36,19 +36,19 @@ below -
 
 <div class="row">
   <div class="column">
-    <img src="/assets/btp/cons1.png">
+    <img src="cons1.png">
   </div>
 </div>
 
 <div class="row">
   <div class="column">
-    <img src="/assets/btp/cons3.png">
+    <img src="cons3.png">
   </div>
 </div>
 
 <div class="row">
   <div class="column">
-    <img src="/assets/btp/cons2.png">
+    <img src="cons2.png">
   </div>
 </div>
 
