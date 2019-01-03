@@ -1,0 +1,3 @@
+Number of projections classified incorrectly: 0 
+Final image rmse error: 45.72 
+Final image rmse error: 41.95 

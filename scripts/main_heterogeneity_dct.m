@@ -2,10 +2,10 @@ close all;
 clc;
 
 % Increase the number of parpool workers.
-myCluster = parcluster('local');
-myCluster.NumWorkers = 28;
-saveProfile(myCluster); 
-parpool('local', 28);
+% myCluster = parcluster('local');
+% myCluster.NumWorkers = 28;
+% saveProfile(myCluster); 
+% parpool('local', 28);
 
 addpath(genpath('../data'));
 addpath(genpath('single_axis_symmetry'));
