@@ -9,7 +9,7 @@ function [refinedProjections, thetasestimated, shiftsestimated] = ...
     if noisyOrientations == 1
         numstarts = 2;
     else
-        numstarts = 12;
+        numstarts = 20;
     end
     Ord = 8;
 

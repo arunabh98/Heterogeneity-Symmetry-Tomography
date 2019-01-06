@@ -18,7 +18,7 @@ addpath(genpath('polynomial_fit'));
 addpath(genpath('clustering_algorithms'))
 
 % Get the images of all the classes.
-no_of_classes = 2;
+no_of_classes = 3;
 image_size = 100;
 
 P = zeros(image_size, image_size, no_of_classes);
@@ -28,7 +28,7 @@ end
 
 % Constants.
 non_uniform_distribution = 0;
-sigmaNoiseFraction = 0.20;
+sigmaNoiseFraction = 0.10;
 if non_uniform_distribution == 0
     filename = ...
         strcat('../results/heterogeneity/num_class_', num2str(no_of_classes), '/', num2str(sigmaNoiseFraction*100), '_percent_noise/');
@@ -43,7 +43,7 @@ symmetry_prior = 1;
 noisy_orientations = 0;
 symmetry_method = 4;
 include_clustering = 1;
-num_theta = 20000;
+num_theta = 45000;
 max_angle_error = 0;
 max_shift_amplitude = 0;
 
@@ -95,11 +95,15 @@ disp(norm(measured_projections - original_projections, 'fro'));
 disp('');
 
 disp('**** Initial classification of projections ****');
-projection_classes =...
+[projection_classes, initial_incorrect, final_incorrect] =...
     classify_projections_alter(measured_projections, theta, original_class_of_projections,...
         sigmaNoise, no_of_classes, filename);
 
-disp('**** Initial classification performance ****')
+disp('**** Classification performance ****')
+formatSpec = 'Number of projection clusters classified incorrectly initially: %d \r\n';
+fprintf(fileID, formatSpec, initial_incorrect);
+formatSpec = 'Number of projection clusters classified incorrectly finally: %d \r\n';
+fprintf(fileID, formatSpec, final_incorrect);
 fprintf('Number of projections classified incorrectly: %d \r\n',...
         sum(projection_classes ~= original_class_of_projections));
 formatSpec = 'Number of projections classified incorrectly: %d \r\n';
