@@ -70,7 +70,7 @@ function reconstructed_image = reconstruct_image_symmetry(...
     errors = [];
     alpha_rate =  0.001;
     beta_rate = 0.001;
-    error_delta = 10;
+    % error_delta = 10;
 
     % Calculate the estimate of the image based on moment based solver.
     reconstructed_image = ...
@@ -79,12 +79,12 @@ function reconstructed_image = reconstruct_image_symmetry(...
 
     % delta is the angle by which the image should be rotated
     % so that the axis of symmetry is horizontal.
-    delta = estimate_axis_symmetry_alter(...
-        reconstructed_image, output_size, 90, 0, symmetry_method);
+    % delta = estimate_axis_symmetry_alter(...
+    %     reconstructed_image, output_size, 90, 0, symmetry_method);
 
     disp('**** Optimization error using symmetric prior ****');
     fprintf('\nIteration Error:            \n');
-    for i=1:1000
+    for i=1:500
 
         % Use the projection prior
         gradient_vector = ...
@@ -94,19 +94,19 @@ function reconstructed_image = reconstruct_image_symmetry(...
         % Then use the symmetric prior.
         % For calculating the symmetry gradient we first rotate the image
         % to make the horizintal axis symmetrical.
-        cropped_image = extract_circular_patch(reconstructed_image);
+        % cropped_image = extract_circular_patch(reconstructed_image);
 
-        rotated_image = imrotate(cropped_image, delta, 'bicubic', 'crop');
-        symmetry_gradient_vector = symmetry_gradient_matrix(rotated_image);
-        symmetry_gradient_vector = imrotate(symmetry_gradient_vector, -delta, 'bicubic', 'crop');
+        % rotated_image = imrotate(cropped_image, delta, 'bicubic', 'crop');
+        % symmetry_gradient_vector = symmetry_gradient_matrix(rotated_image);
+        % symmetry_gradient_vector = imrotate(symmetry_gradient_vector, -delta, 'bicubic', 'crop');
 
         % Now finally update the image.
         reconstructed_image = ...
-            reconstructed_image - alpha_rate*gradient_vector - beta_rate*symmetry_gradient_vector; 
+            reconstructed_image - alpha_rate*gradient_vector; 
 
         % The optimization error for this iteration.
         function_error = calculate_optimization_error_symmetry_single_axis(refined_projections,...
-            reconstructed_image, better_theta, better_shift, delta);
+            reconstructed_image, better_theta, better_shift);
 
         % Display the error for ths iteration.
         fprintf('%6g \n', function_error); 
@@ -119,9 +119,9 @@ function reconstructed_image = reconstruct_image_symmetry(...
             resolution_shift);
 
         % Now update the symmetry axis.
-        delta = estimate_axis_symmetry_alter(...
-            reconstructed_image, output_size, error_delta, delta, symmetry_method);
+        % delta = estimate_axis_symmetry_alter(...
+        %     reconstructed_image, output_size, error_delta, delta, symmetry_method);
 
-        error_delta = max(1, error_delta - 0.5);
+        % error_delta = max(1, error_delta - 0.5);
     end
 end

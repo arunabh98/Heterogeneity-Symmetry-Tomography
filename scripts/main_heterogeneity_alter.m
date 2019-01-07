@@ -18,7 +18,7 @@ addpath(genpath('polynomial_fit'));
 addpath(genpath('clustering_algorithms'))
 
 % Get the images of all the classes.
-no_of_classes = 3;
+no_of_classes = 2;
 image_size = 100;
 
 P = zeros(image_size, image_size, no_of_classes);
@@ -43,7 +43,7 @@ symmetry_prior = 1;
 noisy_orientations = 0;
 symmetry_method = 4;
 include_clustering = 1;
-num_theta = 45000;
+num_theta = 30000;
 max_angle_error = 0;
 max_shift_amplitude = 0;
 
@@ -110,7 +110,7 @@ formatSpec = 'Number of projections classified incorrectly: %d \r\n';
 fprintf(fileID, formatSpec, sum(projection_classes ~= original_class_of_projections));
 
 % No. of clusters to create while estimating the structure.
-num_clusters = 50;
+num_clusters = 80;
 
 % Reconstruct the images.
 for i=1:no_of_classes

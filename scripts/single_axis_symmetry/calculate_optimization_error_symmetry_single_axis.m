@@ -1,5 +1,5 @@
 function error_estimate = calculate_optimization_error_symmetry_single_axis(...
-	projections, image_estimate, theta, shift, delta)
+	projections, image_estimate, theta, shift)
 
 	error_estimate = 0;
 	parfor i=1:size(projections, 2)
@@ -12,7 +12,7 @@ function error_estimate = calculate_optimization_error_symmetry_single_axis(...
 			norm(shifted_projection - estimated_projection).^2;
 	end
 
-	% Now add the symmetry error.
-	error_estimate = error_estimate +...
-		amount_symmetric_optimization_function(image_estimate, delta);
+	% % Now add the symmetry error.
+	% error_estimate = error_estimate +...
+	% 	amount_symmetric_optimization_function(image_estimate, delta);
 end
