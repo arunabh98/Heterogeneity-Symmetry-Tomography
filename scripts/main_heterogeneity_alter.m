@@ -18,23 +18,24 @@ addpath(genpath('polynomial_fit'));
 addpath(genpath('clustering_algorithms'))
 
 % Get the images of all the classes.
-no_of_classes = 2;
+no_of_classes = 3;
 image_size = 100;
+protein_folder = 'protein_1';
 
 P = zeros(image_size, image_size, no_of_classes);
 parfor i=1:no_of_classes
-    P(:, :, i) = read_process_image(strcat('proteins/protein_2/refs_00', num2str(i), '.png'), image_size);
+    P(:, :, i) = read_process_image(strcat('proteins/', protein_folder, '/refs_00', num2str(i), '.png'), image_size);
 end
 
 % Constants.
 non_uniform_distribution = 0;
-sigmaNoiseFraction = 0.10;
+sigmaNoiseFraction = 0.30;
 if non_uniform_distribution == 0
     filename = ...
-        strcat('../results/heterogeneity/num_class_', num2str(no_of_classes), '/', num2str(sigmaNoiseFraction*100), '_percent_noise/');
+        strcat('../results/heterogeneity/', protein_folder, '/num_class_', num2str(no_of_classes), '/', num2str(sigmaNoiseFraction*100), '_percent_noise/');
 else
     filename = ...
-        strcat('../results/heterogeneity/num_class_', num2str(no_of_classes), num2str(sigmaNoiseFraction*100), '_percent_noise/non_uniform_distribution/');
+        strcat('../results/heterogeneity/', protein_folder, '/num_class_', num2str(no_of_classes), num2str(sigmaNoiseFraction*100), '_percent_noise/non_uniform_distribution/');
 end
 output_size = max(size(P(:, :, 1)));
 
