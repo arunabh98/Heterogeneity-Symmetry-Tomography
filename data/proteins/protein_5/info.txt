@@ -1,4 +1,4 @@
-HCV Helicase, 2 conformations
+DnaK chaperone, 2 conformations
 
-1 - https://www.rcsb.org/pdb/explore/jmol.do?structureId=8ohm&bionumber=1&jmolMode=HTML5
-2 - https://www.rcsb.org/pdb/explore/jmol.do?structureId=1cu1&bionumber=1&jmolMode=HTML5
+1 - https://www.rcsb.org/pdb/explore/jmol.do?structureId=1dkx&bionumber=1&jmolMode=HTML5
+2 - https://www.rcsb.org/pdb/explore/jmol.do?structureId=1dky&bionumber=1&jmolMode=HTML5
