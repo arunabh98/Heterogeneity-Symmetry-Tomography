@@ -1,6 +1,5 @@
-Isocitrate Dehydrogenase, 4 conformations
+Hemoglobin (Hb), 3 conformations
 
-1 - https://www.rcsb.org/pdb/explore/jmol.do?structureId=1ai2&bionumber=1&jmolMode=HTML5
-2 - https://www.rcsb.org/pdb/explore/jmol.do?structureId=1ika&bionumber=1&jmolMode=HTML5
-3 - https://www.rcsb.org/pdb/explore/jmol.do?structureId=3icd&bionumber=1&jmolMode=HTML5
-4 - https://www.rcsb.org/pdb/explore/jmol.do?structureId=5icd&bionumber=1&jmolMode=HTML5
+1 - https://www.rcsb.org/pdb/explore/jmol.do?structureId=1hho&bionumber=1&jmolMode=HTML5
+2 - https://www.rcsb.org/pdb/explore/jmol.do?structureId=2hco&bionumber=1&jmolMode=HTML5
+3 - https://www.rcsb.org/pdb/explore/jmol.do?structureId=4hhb&bionumber=1&jmolMode=HTML5
