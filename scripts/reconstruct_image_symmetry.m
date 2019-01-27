@@ -1,7 +1,8 @@
 function [reconstructed_image, noisy_theta, better_theta, clustered_angles] = reconstruct_image_symmetry(...
     measured_projections, original_projections,...
     num_clusters, theta, sigmaNoise, num_theta, noisy_orientations,...
-    max_shift_amplitude, svector, output_size)
+    max_shift_amplitude, svector, output_size, outlier_mode,...
+    outlier_percentage, outlier_indices)
     
     % Specify the frequency domain approach.
     symmetry_method = 4;
@@ -13,7 +14,8 @@ function [reconstructed_image, noisy_theta, better_theta, clustered_angles] = re
 
     disp('**** Cluster the projections ****');
     [clustered_projections, clustered_angles] =...
-        cluster_projections(measured_projections, num_clusters, theta);
+        cluster_projections(measured_projections, num_clusters, theta,...
+            outlier_mode, outlier_percentage, outlier_indices);
 
     % Save the original projections and mark the clustered projections as measured
     % projections.

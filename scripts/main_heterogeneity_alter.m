@@ -18,7 +18,7 @@ addpath(genpath('polynomial_fit'));
 addpath(genpath('clustering_algorithms'))
 
 % Get the images of all the classes.
-no_of_classes = 1;
+no_of_classes = 2;
 image_size = 100;
 protein_folder = 'protein_4';
 
@@ -47,7 +47,7 @@ include_clustering = 1;
 num_theta = 20000;
 max_angle_error = 0;
 max_shift_amplitude = 0;
-outlier_mode = 0;
+outlier_mode = 1;
 outlier_percentage = 5;
 
 % Create the folder to hold the results of the experiment.
@@ -76,7 +76,7 @@ elseif non_uniform_distribution == 1
 end
 
 % Generate the projections from all classes.
-[projections, svector, original_class_of_projections] = ...
+[projections, svector, original_class_of_projections, outlier_indices] = ...
     get_projections(theta, P, outlier_mode, outlier_percentage);
 
 % [projections, svector] = radon(P,theta);
@@ -98,7 +98,7 @@ disp(norm(measured_projections - original_projections, 'fro'));
 disp('');
 
 disp('**** Initial classification of projections ****');
-if no_of_classes ~= 1
+if no_of_classes ~= 1 && outlier_mode == 0
     [projection_classes, initial_incorrect, final_incorrect] =...
         classify_projections_alter(measured_projections, theta, original_class_of_projections,...
             sigmaNoise, no_of_classes, filename);
@@ -121,6 +121,10 @@ fprintf(fileID, formatSpec, sum(projection_classes ~= original_class_of_projecti
 % No. of clusters to create while estimating the structure.
 num_clusters = 150;
 
+if outlier_mode == 1
+    no_of_classes = 1;
+end
+
 % Reconstruct the images.
 for i=1:no_of_classes
     class_measured_projections = measured_projections(:, projection_classes == i);
@@ -133,7 +137,7 @@ for i=1:no_of_classes
     [reconstructed_image, noisy_theta, better_theta, clustered_angles] = reconstruct_image_symmetry(...
         class_measured_projections, class_original_projections,...
         num_clusters, class_theta, sigmaNoise, class_num_theta, noisy_orientations,...
-        max_shift_amplitude, svector, output_size);
+        max_shift_amplitude, svector, output_size, outlier_mode, outlier_percentage, outlier_indices);
 
     % Save the result.
     formatSpec = 'Final image rmse error: %4.2f \r\n';
