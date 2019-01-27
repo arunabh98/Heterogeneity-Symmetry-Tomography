@@ -47,6 +47,8 @@ include_clustering = 1;
 num_theta = 10000;
 max_angle_error = 0;
 max_shift_amplitude = 0;
+outlier_mode = 0;
+outlier_percentage = 5;
 
 % Create the folder to hold the results of the experiment.
 mkdir(strcat(filename, num2str(num_theta), '/all_variables/'));
@@ -75,7 +77,7 @@ end
 
 % Generate the projections from all classes.
 [projections, svector, original_class_of_projections] = ...
-    get_projections(theta, P);
+    get_projections(theta, P, outlier_mode, outlier_percentage);
 
 % [projections, svector] = radon(P,theta);
 original_projections = projections;
@@ -128,7 +130,7 @@ for i=1:no_of_classes
     class_num_theta = size(class_theta, 2);
 
     disp('**** Reconstructing image ****')
-    reconstructed_image = reconstruct_image_symmetry(...
+    [reconstructed_image, noisy_theta, better_theta, clustered_angles] = reconstruct_image_symmetry(...
         class_measured_projections, class_original_projections,...
         num_clusters, class_theta, sigmaNoise, class_num_theta, noisy_orientations,...
         max_shift_amplitude, svector, output_size);
