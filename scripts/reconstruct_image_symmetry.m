@@ -29,8 +29,10 @@ function reconstructed_image = reconstruct_image_symmetry(...
     % If orientations are noisy or completely unknown.
     if noisy_orientations == 1
         initial_theta = theta + randi([-1 1], 1, num_clusters);
+        num_iter = 10;
     else
         initial_theta = randi([1 179], num_clusters, 1);
+        num_iter = 1000;
     end
 
     % The shifts estimated using the center of mass theorem.
@@ -84,7 +86,7 @@ function reconstructed_image = reconstruct_image_symmetry(...
 
     disp('**** Optimization error using symmetric prior ****');
     fprintf('\nIteration Error:            \n');
-    for i=1:1000
+    for i=1:num_iter
 
         % Use the projection prior
         gradient_vector = ...

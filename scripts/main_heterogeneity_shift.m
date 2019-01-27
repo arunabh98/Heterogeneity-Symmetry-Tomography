@@ -2,10 +2,10 @@ close all;
 clc;
 
 % Increase the number of parpool workers.
-myCluster = parcluster('local');
-myCluster.NumWorkers = 28;
-saveProfile(myCluster); 
-parpool('local', 28);
+% myCluster = parcluster('local');
+% myCluster.NumWorkers = 28;
+% saveProfile(myCluster); 
+% parpool('local', 28);
 
 % Include the moment based estimation scripts and noise scripts.
 addpath(genpath('../data'));
@@ -18,35 +18,35 @@ addpath(genpath('polynomial_fit'));
 addpath(genpath('clustering_algorithms'))
 
 % Get the images of all the classes.
-no_of_classes = 1;
+no_of_classes = 3;
 image_size = 100;
 protein_folder = 'protein_1';
 
-P = zeros(image_size, image_size, no_of_classes);
+P = zeros(image_size + 6, image_size + 6, no_of_classes);
 parfor i=1:no_of_classes
-    P(:, :, i) = read_process_image(strcat('proteins/', protein_folder, '/refs_00', num2str(i), '.png'), image_size);
+    P(:, :, i) = read_process_image_shift(strcat('proteins/', protein_folder, '/refs_00', num2str(i), '.png'), image_size);
 end
 
 % Constants.
 non_uniform_distribution = 0;
-sigmaNoiseFraction = 0.01;
+sigmaNoiseFraction = 0.05;
 if non_uniform_distribution == 0
     filename = ...
         strcat('../results/heterogeneity/', protein_folder, '/num_class_', num2str(no_of_classes), '/', num2str(sigmaNoiseFraction*100), '_percent_noise/');
 else
     filename = ...
-        strcat('../results/heterogeneity/', protein_folder, '/num_class_', num2str(no_of_classes), '/', num2str(sigmaNoiseFraction*100), '_percent_noise/non_uniform_distribution/');
+        strcat('../results/heterogeneity/', protein_folder, '/num_class_', num2str(no_of_classes), num2str(sigmaNoiseFraction*100), '_percent_noise/non_uniform_distribution/');
 end
 output_size = max(size(P(:, :, 1)));
 
 % Experimentatal conditions.
 symmetry_prior = 1;
-noisy_orientations = 0;
+noisy_orientations = 1;
 symmetry_method = 4;
 include_clustering = 1;
-num_theta = 10000;
+num_theta = 6000;
 max_angle_error = 0;
-max_shift_amplitude = 0;
+max_shift_amplitude = 2;
 
 % Create the folder to hold the results of the experiment.
 mkdir(strcat(filename, num2str(num_theta), '/all_variables/'));
@@ -76,9 +76,15 @@ end
 % Generate the projections from all classes.
 [projections, svector, original_class_of_projections] = ...
     get_projections(theta, P);
-
-% [projections, svector] = radon(P,theta);
 original_projections = projections;
+
+original_shifts = zeros(size(theta));
+% Shift each projection by a small amount.
+parfor i=1:size(projections, 2)
+    original_shifts(i) = ...
+        randi([-max_shift_amplitude, max_shift_amplitude]);
+    projections(:, i) = circshift(projections(:, i), original_shifts(i)); 
+end
 
 % Normalize s to a unit circle
 smax = max(abs(svector));
@@ -96,15 +102,9 @@ disp(norm(measured_projections - original_projections, 'fro'));
 disp('');
 
 disp('**** Initial classification of projections ****');
-if no_of_classes ~= 1
-    [projection_classes, initial_incorrect, final_incorrect] =...
-        classify_projections_alter(measured_projections, theta, original_class_of_projections,...
-            sigmaNoise, no_of_classes, filename);
-else
-    projection_classes = ones(size(original_class_of_projections));
-    initial_incorrect = 0;
-    final_incorrect = 0;
-end
+[projection_classes, initial_incorrect, final_incorrect] =...
+    classify_projections_shift(measured_projections, theta, original_class_of_projections,...
+        sigmaNoise, no_of_classes, filename);
 
 disp('**** Classification performance ****')
 formatSpec = 'Number of projection clusters classified incorrectly initially: %d \r\n';
