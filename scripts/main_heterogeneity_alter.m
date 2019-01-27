@@ -20,7 +20,7 @@ addpath(genpath('clustering_algorithms'))
 % Get the images of all the classes.
 no_of_classes = 1;
 image_size = 100;
-protein_folder = 'protein_1';
+protein_folder = 'protein_4';
 
 P = zeros(image_size, image_size, no_of_classes);
 parfor i=1:no_of_classes
@@ -28,8 +28,8 @@ parfor i=1:no_of_classes
 end
 
 % Constants.
-non_uniform_distribution = 0;
-sigmaNoiseFraction = 0.01;
+non_uniform_distribution = 1;
+sigmaNoiseFraction = 0.30;
 if non_uniform_distribution == 0
     filename = ...
         strcat('../results/heterogeneity/', protein_folder, '/num_class_', num2str(no_of_classes), '/', num2str(sigmaNoiseFraction*100), '_percent_noise/');
@@ -44,7 +44,7 @@ symmetry_prior = 1;
 noisy_orientations = 0;
 symmetry_method = 4;
 include_clustering = 1;
-num_theta = 10000;
+num_theta = 20000;
 max_angle_error = 0;
 max_shift_amplitude = 0;
 outlier_mode = 0;
@@ -119,7 +119,7 @@ formatSpec = 'Number of projections classified incorrectly: %d \r\n';
 fprintf(fileID, formatSpec, sum(projection_classes ~= original_class_of_projections));
 
 % No. of clusters to create while estimating the structure.
-num_clusters = 80;
+num_clusters = 150;
 
 % Reconstruct the images.
 for i=1:no_of_classes
